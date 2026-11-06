@@ -1,5 +1,7 @@
-import { criarCartoes } from './cartoes.js?v=20261027a';
-import { localidades, filtrarLocalidades } from './dados-demonstrativos.js?v=20261027a';
+import { criarCartoes } from './cartoes.js?v=20261105u';
+import { localidades, filtrarLocalidades } from './dados-demonstrativos.js?v=20261105u';
+
+import { iniciarUmidadeCartoes } from './umidade-cartoes.js?v=20261105u';
 
 const dashboardPorLocal = Object.fromEntries(localidades.map(local => [local.id, local.rota]));
 
@@ -21,7 +23,7 @@ function escrever(id, texto) {
 
 function atualizarLocalidade(local) {
   document.getElementById('link-dashboard').href = dashboardPorLocal[local.id];
-  escrever('anuncio-localidade', `${local.nome} selecionada. Dados demonstrativos.`);
+  escrever('anuncio-localidade', `${local.nome} selecionada. Temperatura e condições ilustrativas; umidade da estação quando disponível.`);
 }
 
 function atualizarCartoes() {
@@ -156,11 +158,13 @@ function navegarTeclado(evento) {
 
 function filtrar() {
   disponiveis = filtrarLocalidades(busca.value);
+  carrossel.hidden = !disponiveis.length;
+  paginacao.hidden = !disponiveis.length;
   lista.querySelectorAll('[data-localidade]').forEach(cartao => {
     cartao.hidden = !disponiveis.some(local => local.id === cartao.dataset.localidade);
   });
   criarPaginacao();
-  escrever('contagem-localidades', `${disponiveis.length} localidades · dados demonstrativos`);
+  escrever('contagem-localidades', `${disponiveis.length} localidades · clima ilustrativo`);
   escrever('resultado-busca', disponiveis.length ? '' : 'Nenhuma cidade encontrada. Tente buscar outra localidade.');
   if (!disponiveis.some(local => local.id === selecionada)) selecionar(disponiveis[0]?.id);
   atualizarCartoes();
@@ -261,7 +265,8 @@ function conectarControles() {
 
 function iniciar() {
   criarCartoes();
-  escrever('contagem-localidades', `${localidades.length} localidades · dados demonstrativos`);
+  iniciarUmidadeCartoes();
+  escrever('contagem-localidades', `${localidades.length} localidades · clima ilustrativo`);
   document.querySelectorAll('[data-selecionar], #busca').forEach(item => { item.disabled = false; });
   criarPaginacao();
   atualizarLocalidade(localidades.find(local => local.id === selecionada));

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { estadoDaLeitura, estadoDaFalha, estadoNaoConfigurado, estados } from '../JAVA SCRIPT/estados.js';
+import { estadoDaLeitura, estadoDaFalha, estados } from '../JAVA SCRIPT/estados.js';
 import { interpretarResultados } from '../JAVA SCRIPT/consulta-estacao.js';
 import { catalogoEstacoes } from '../JAVA SCRIPT/estacoes.js';
 const ok = value => ({ status: 'fulfilled', value });
@@ -17,8 +17,10 @@ test('mantém falha HTTP distinta de rede inacessível e ausência de cadastro',
   assert.equal(estadoDaFalha({ codigo: 'offline' }).tipo, 'offline');
   assert.equal(estadoDaFalha({ codigo: 'error' }).tipo, 'error');
   assert.equal(estadoDaFalha({ codigo: 'empty' }).tipo, 'empty');
-  assert.match(estadoNaoConfigurado().texto, /ainda não disponibiliza/);
-  for (const estado of Object.values(estados)) assert.ok(estado.titulo && estado.texto && estado.icone);
+  assert.deepEqual(estados.empty, { acao: 'Consultar novamente' });
+  for (const [tipo, estado] of Object.entries(estados)) {
+    if (tipo !== 'empty') assert.ok(estado.titulo && estado.texto && estado.icone);
+  }
 });
 test('não mistura leitura de outra estação e preserva sucesso parcial do histórico', () => {
   const resultado = interpretarResultados([ok({ estacao_id: 7, temperatura: 20 }),

@@ -17,8 +17,8 @@ function textoSvg(texto, atributos) {
 
 function calcularEscala(serie, largura) {
   const valores = serie.map(ponto => ponto.temperatura);
-  const minimo = Math.floor(Math.min(...valores)) - 2;
-  const maximo = Math.ceil(Math.max(...valores)) + 2;
+  const minimo = Math.floor(valores.reduce((minimo, valor) => Math.min(minimo, valor), Infinity)) - 2;
+  const maximo = Math.ceil(valores.reduce((maximo, valor) => Math.max(maximo, valor), -Infinity)) + 2;
   const inicio = Date.parse(serie[0].horario);
   const duracao = Date.parse(serie.at(-1).horario) - inicio;
   return { minimo, maximo, largura,
@@ -99,6 +99,7 @@ export function desenharGrafico(serie, contexto) {
   const svg = document.getElementById('grafico');
   ultimaSerie = serie; ultimoContexto = contexto;
   observarGrafico(svg);
+  const foco = [...svg.querySelectorAll('.ponto')].indexOf(document.activeElement);
   svg.replaceChildren();
   svg.setAttribute('aria-label', `Temperatura de ${contexto.nome}, data selecionada.`);
   if (!serie.length) {
@@ -113,6 +114,13 @@ export function desenharGrafico(serie, contexto) {
   desenharLinha(svg, { serie, escala });
   svg.onkeydown = navegarPontos;
   exibirAmostra(serie.at(-1));
+  if (foco >= 0) {
+    const pontos = [...svg.querySelectorAll('.ponto')];
+    pontos.forEach(ponto => ponto.setAttribute('tabindex', '-1'));
+    const destino = pontos[Math.min(foco, pontos.length - 1)];
+    destino.setAttribute('tabindex', '0');
+    destino.focus({ preventScroll: true });
+  }
 }
 
 let ultimaSerie = [], ultimoContexto, observador, larguraAnterior;

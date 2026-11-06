@@ -6,7 +6,7 @@ import { formatarData } from '../JAVA SCRIPT/dados-dashboards.js';
 test('campos do contrato alimentam os indicadores sem carregar propriedades extras', () => {
   assert.deepEqual(normalizarLeitura({ temperatura: 23, umidade: 60, pressao: 1012,
     qualidade_ar: 35, luminosidade: 420, data_hora: '2026-10-21T10:00:00Z', extra: 99 }),
-  { temperatura: 23, umidade: 60, pressao: 1012, ar: 35, luminosidade: 420, horario: '2026-10-21T10:00:00Z' });
+  { temperatura: 23, umidade: 60, pressao: 1012, ar: 35, luminosidade: 420, horario: '2026-10-21T10:00:00Z', precipitacao: null });
 });
 test('histórico mantém valores e ordena as leituras para gráfico e tabela', () => {
   const serie = normalizarHistorico([{ temperatura: 25, data_hora: '2026-10-21T12:00:00Z' },

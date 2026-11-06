@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Dashboards por localidade da Estação Ambiental IoT.">
   <title>Dashboards — Estação Ambiental IoT</title>
-  <link rel="stylesheet" href="../CSS/painel.css?v=20261027b">
-  <link rel="stylesheet" href="../CSS/dashboard.css?v=20261027a">
-  <script type="module" src="../JAVA%20SCRIPT/dashboard.js?v=20261027a"></script>
+  <link rel="stylesheet" href="../CSS/painel.css?v=20261105v">
+  <link rel="stylesheet" href="../CSS/dashboard.css?v=20261105u">
+  <script type="module" src="../JAVA%20SCRIPT/dashboard.js?v=20261105v"></script>
 </head>
 <body class="pagina-dashboard">
   <a class="pular-conteudo" href="#conteudo-dashboard">Ir para o dashboard</a>
@@ -36,14 +36,13 @@
           aria-label="Próxima localidade" aria-controls="dashboard" disabled><svg class="icone" aria-hidden="true" focusable="false"><use href="../ASSETS/icones-dashboard.svg#arrow-right"></use></svg></button>
       </div>
     </div>
-    <div id="estado-dashboard" class="estado-dados"></div>
     <noscript><p class="aviso">Ative o JavaScript para carregar os dashboards e selecionar uma localidade.</p></noscript>
 
-    <section id="dashboard" role="tabpanel" aria-labelledby="aba-sorocaba" tabindex="0">
+    <section id="dashboard" role="tabpanel" aria-labelledby="titulo-dashboard" tabindex="0">
       <div class="cabecalho-dashboard">
         <div>
-          <h1>Monitoramento Ambiental</h1>
-          <p><strong id="nome-local">Selecione uma localidade</strong><span id="condicao-local"></span></p>
+          <h1 id="titulo-dashboard">Monitoramento Ambiental</h1>
+          <p><strong id="nome-local">Selecione uma localidade</strong></p>
         </div>
         <div class="atualizacao">
           <div>
@@ -64,7 +63,7 @@
           </div>
           <div class="metrica">
             <dt><span class="icone-metrica"><svg aria-hidden="true"><use href="../ASSETS/icones-dashboard.svg#humidity"></use></svg></span>Umidade relativa</dt>
-            <dd class="medida"><span id="metrica-umidade">—</span> <span class="unidade">%</span></dd>
+            <dd class="medida"><span id="metrica-umidade">—</span> <span id="unidade-umidade" class="unidade"></span></dd>
           </div>
           <div class="metrica">
             <dt><span class="icone-metrica"><svg aria-hidden="true"><use href="../ASSETS/icones-dashboard.svg#pressure"></use></svg></span>Pressão atmosférica</dt>
@@ -72,11 +71,24 @@
           </div>
           <div class="metrica">
             <dt><span class="icone-metrica"><svg aria-hidden="true"><use href="../ASSETS/icones-dashboard.svg#air"></use></svg></span>Qualidade do ar</dt>
-            <dd class="medida"><span id="metrica-ar">—</span> <span class="unidade"></span></dd>
+            <dd class="medida"><span id="metrica-ar">—</span></dd>
           </div>
           <div class="metrica">
             <dt><span class="icone-metrica"><svg aria-hidden="true"><use href="../ASSETS/icones-dashboard.svg#light"></use></svg></span>Luminosidade</dt>
             <dd class="medida"><span id="metrica-luminosidade">—</span> <span class="unidade">lx</span></dd>
+          </div>
+          <div class="metrica metrica-precipitacao">
+            <dt><span class="icone-metrica"><svg aria-hidden="true" focusable="false">
+              <use href="../ASSETS/icones-dashboard.svg#rain"></use></svg></span>Precipitação acumulada</dt>
+            <dd class="medida" aria-describedby="periodo-precipitacao horario-precipitacao situacao-precipitacao">
+              <span id="metrica-precipitacao" data-indisponivel>Indisponível</span>
+              <span id="unidade-precipitacao" class="unidade"></span>
+            </dd>
+            <dd class="detalhes-precipitacao">
+              <span id="periodo-precipitacao">Período de acumulação indisponível.</span>
+              <span id="horario-precipitacao">Leitura: Indisponível</span>
+              <span id="situacao-precipitacao">Sem medição de precipitação disponível.</span>
+            </dd>
           </div>
         </dl>
         <p class="nota-unidade">Qualidade do ar: valor bruto da API; unidade e calibração não informadas.</p>
@@ -91,7 +103,7 @@
               <div><h3 id="titulo-grafico">Temperatura por data</h3>
                 <p id="subtitulo-grafico">Aguardando consulta</p></div>
               <div class="filtro-data"><label for="data-historico">Data do histórico</label>
-                <input id="data-historico" type="date"></div>
+                <input id="data-historico" type="date" required></div>
             </div>
             <output id="leitura-grafico" class="leitura-grafico">Selecione um ponto para consultar a amostra.</output>
             <svg id="grafico" viewBox="0 0 800 280" role="group" aria-label="Gráfico de temperatura"></svg>

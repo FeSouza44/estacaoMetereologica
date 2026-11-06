@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 import json
 import re
 import time
@@ -32,6 +32,12 @@ class Cenarios(SimpleHTTPRequestHandler):
         if cenario == 'error':
             self.responder('{}', 'application/json', 503)
             return
+        if cenario == 'invalid':
+            self.responder('{}', 'application/json')
+            return
+        if cenario == 'partial' and caminho.endswith('/historico'):
+            self.responder('{}', 'application/json', 503)
+            return
         if cenario == 'loading':
             time.sleep(3)
         if caminho.endswith('/'):
@@ -51,8 +57,11 @@ class Cenarios(SimpleHTTPRequestHandler):
                    'umidade': 50 + station_id % 10, 'pressao': 1010,
                    'qualidade_ar': 21, 'luminosidade': 400, 'data_hora': instante.isoformat()}
         dados = leitura if caminho.endswith('/recente') else [
-            {**leitura, 'temperatura': leitura['temperatura'] + i,
+            {**leitura, 'temperatura': leitura['temperatura'] - 3 + i,
              'data_hora': (instante - timedelta(minutes=30 - i * 10)).isoformat()} for i in range(4)]
+        if cenario == 'unknown-time':
+            for item in ([dados] if isinstance(dados, dict) else dados):
+                item.pop('data_hora', None)
         self.responder(json.dumps(dados), 'application/json')
 
     def do_GET(self):
@@ -60,6 +69,13 @@ class Cenarios(SimpleHTTPRequestHandler):
         if caminho.startswith('/api-test/'):
             return self.responder_api(caminho)
         arquivo = Path(self.translate_path(self.path))
+        if arquivo.name == 'painel.css':
+            texto = arquivo.read_text(encoding='utf-8')
+            tema = parse_qs(urlsplit(self.headers.get('Referer', '')).query).get('tema', [''])[0]
+            if tema in ('light', 'dark'):
+                media = 'all' if tema == 'dark' else 'not all'
+                texto = texto.replace('(prefers-color-scheme: dark)', media)
+            return self.responder(texto, 'text/css')
         if arquivo.name == 'configuracao-api.js':
             texto = arquivo.read_text(encoding='utf-8').replace("export const API_BASE_URL = '';",
                 "export const API_BASE_URL = location.origin + '/api-test/' + "

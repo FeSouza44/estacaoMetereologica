@@ -1,3 +1,11 @@
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../ASSETS/fontes/InterVariable.woff2') format('woff2');
+}
+
 :root {
   color-scheme: light;
   --fundo: light-dark(#edf5f4, #08111f);
@@ -16,9 +24,6 @@
   --selo-texto: light-dark(#09675f, #71e6d5);
   --foto-texto: #f0f6fa;
   --fonte: "Inter", "Segoe UI", Arial, sans-serif;
-  --espaco-pequeno: 8px;
-  --espaco-medio: 16px;
-  --espaco-grande: 24px;
   --margem: 80px;
   --raio: 12px;
 }
@@ -56,8 +61,6 @@ nav { margin-left: auto; }
 nav ul { display: flex; gap: 28px; align-items: center; list-style: none; margin: 0; padding: 0; }
 nav a { display: block; padding: 8px 10px; color: var(--secundario); border-radius: 8px; font-size: 14px; }
 nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: var(--destaque); }
-.selo { display: inline-block; padding: 6px 12px; border-radius: 20px; background: var(--destaque-escuro);
-  color: var(--selo-texto); font-size: 12px; white-space: normal; }
 .pagina-locais { padding-top: 52px; padding-bottom: 24px; }
 .apresentacao { display: flex; justify-content: space-between; gap: 32px; align-items: center; }
 .apresentacao p { margin-top: 10px; font-size: 15px; }
@@ -92,7 +95,6 @@ nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: va
 .localidade.selecionada article { transform: scale(1); opacity: 1; border-color: var(--destaque);
   box-shadow: inset 0 0 0 1px var(--destaque); }
 .localidade article { cursor: pointer; }
-.localidade article:focus-visible { outline-offset: 3px; }
 .localidade:focus-within article, .localidade:hover article { opacity: 1; }
 .clima {
   position: relative; isolation: isolate; overflow: hidden; border-radius: 21px 21px 0 0;
@@ -107,7 +109,6 @@ nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: va
   text-align: center; text-shadow: 0 2px 8px #08111f; }
 .icone-clima { color: var(--foto-texto); }
 .temperatura-cartao { font-size: 48px; line-height: 1.2; font-weight: 700; color: var(--foto-texto); }
-.temperatura-cartao span { font-size: .45em; font-weight: 500; }
 .condicoes-cartao > p:last-child { font-size: 13px; color: var(--foto-texto); }
 .identificacao-localidade { color: var(--foto-texto); text-shadow: 0 2px 8px #08111f; }
 .identificacao-localidade h3 { font-size: 24px; }
@@ -162,7 +163,6 @@ nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: va
 @media (max-width: 1150px) {
   :root { --margem: 32px; }
   .barra-navegacao, nav ul { gap: 12px; }
-  .barra-navegacao > .selo { display: none; }
   .apresentacao { align-items: flex-start; }
   #busca-localidades { flex-basis: 260px; }
   h1 { font-size: 30px; }
@@ -218,8 +218,6 @@ nav a { min-height: 44px; display: flex; align-items: center; }
 .estado-dados > div { min-width: 0; flex: 1; }
 .estado-dados strong { display: block; color: var(--texto); }
 .estado-dados p { margin-top: 4px; }
-.estado-dados a { display: inline-flex; align-items: center; min-height: 44px;
-  color: var(--destaque); text-decoration: underline; text-underline-offset: 3px; }
 .estado-dados[data-estado="error"], .estado-dados[data-estado="offline"] {
   border-color: light-dark(#a34d32, #e7aa80);
 }
@@ -230,7 +228,6 @@ nav a { min-height: 44px; display: flex; align-items: center; }
 @media (max-width: 760px) {
   .barra-navegacao { justify-content: space-between; }
   .estado-dados { flex-wrap: wrap; align-items: flex-start; }
-  .estado-dados a { flex-basis: 100%; }
   .sobre-nos { padding: 20px; margin-top: 28px; }
 }
 @media (max-width: 360px) {
@@ -240,3 +237,5 @@ nav a { min-height: 44px; display: flex; align-items: center; }
 @media (prefers-color-scheme: dark) {
   :root { color-scheme: dark; }
 }
+
+.resumo-localidade .origem-umidade { font-size: 10px; font-weight: 400; color: var(--secundario); margin-top: 4px; }

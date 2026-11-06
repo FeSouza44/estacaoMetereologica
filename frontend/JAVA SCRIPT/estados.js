@@ -4,8 +4,7 @@ export const estados = Object.freeze({
   loading: { titulo: 'Consultando dados', texto: 'Aguarde a resposta do serviço.', icone: 'loading', acao: null },
   success: { titulo: 'Leitura recebida', texto: 'Origem: API. A conectividade da estação não é informada.',
     icone: 'check', acao: 'Atualizar dados' },
-  empty: { titulo: 'Sem leituras disponíveis', texto: 'A consulta foi concluída, mas não retornou registros.',
-    icone: 'empty', acao: 'Consultar novamente' },
+  empty: { acao: 'Consultar novamente' },
   error: { titulo: 'Não foi possível atualizar', texto: 'A consulta falhou. Tente novamente.',
     icone: 'error', acao: 'Tentar novamente' },
   offline: { titulo: 'Serviço inacessível', texto: 'Não foi possível alcançar a API. Verifique sua conexão e tente novamente.',
@@ -15,16 +14,12 @@ export const estados = Object.freeze({
 });
 export function estadoDaLeitura(item, agora = Date.now()) {
   if (!item) return { tipo: 'empty' };
-  if (!item.horario) return { tipo: 'success', texto: 'Origem: API. Horário da leitura indisponível; atualidade desconhecida.' };
+  if (!Number.isFinite(Date.parse(item.horario)))
+    return { tipo: 'success', texto: 'Origem: API. Horário da leitura indisponível; atualidade desconhecida.' };
   const idade = agora - Date.parse(item.horario);
   if (idade < -60000) return { tipo: 'success', texto: 'Origem: API. Horário inconsistente; atualidade desconhecida.' };
   return { tipo: idade > LIMITE_DESATUALIZACAO_MS ? 'stale' : 'success' };
 }
 export function estadoDaFalha(erro) {
   return { tipo: erro.codigo === 'offline' ? 'offline' : erro.codigo === 'empty' ? 'empty' : 'error' };
-}
-export function estadoNaoConfigurado() {
-  return { tipo: 'empty', titulo: 'Dados ainda não disponíveis',
-    texto: 'Esta localidade ainda não disponibiliza leituras na plataforma.',
-    acao: 'Escolher outra cidade', destino: 'index.html#localidades' };
 }

@@ -1,9 +1,9 @@
-import { moverSelecao } from './dados-demonstrativos.js?v=20261027a';
-import { catalogoEstacoes as localidades } from './estacoes.js?v=20261027a';
-import { consultarEstacao } from './consulta-estacao.js?v=20261027a';
-import { estadoDaFalha, estadoNaoConfigurado, estados } from './estados.js?v=20261027a';
+import { catalogoEstacoes as localidades, moverSelecao } from './estacoes.js?v=20261105u';
+import { consultarEstacao } from './consulta-estacao.js?v=20261105u';
+import { estadoDaFalha, estados } from './estados.js?v=20261105v';
 import { INTERVALO_ATUALIZACAO_MS } from './configuracao-api.js';
-import { elemento, escrever, mostrarSituacao, mostrarLeitura, mostrarHistorico, mostrarTabela } from './dashboard-interface.js?v=20261027a';
+import { politicaInicialDeLeitura } from './leitura-compartilhada.js?v=20261105u';
+import { elemento, escrever, mostrarSituacao, mostrarLeitura, mostrarHistorico, mostrarTabela } from './dashboard-interface.js?v=20261105v';
 
 let local, consulta, timer;
 let registros = [];
@@ -32,12 +32,23 @@ function atualizarEndereco() {
 function atualizarSelecao() {
   document.querySelectorAll('[role="tab"]').forEach(aba => {
     const ativa = aba.dataset.local === local?.id;
-    aba.setAttribute('aria-selected', String(ativa)); aba.tabIndex = ativa ? 0 : -1;
+    aba.setAttribute('aria-selected', String(ativa));
+    aba.tabIndex = ativa || (!local && aba.dataset.local === localidades[0].id) ? 0 : -1;
   });
   escrever('nome-local', local ? `${local.nome} — ${local.uf}` : 'Localidade não encontrada');
   escrever('estacao-local', local?.nome || 'Indisponível');
   document.title = `${local?.nome || 'Localidade'} — AERIS`;
-  if (local) elemento('dashboard').setAttribute('aria-labelledby', `aba-${local.id}`);
+  elemento('dashboard').setAttribute('aria-labelledby', local ? `aba-${local.id}` : 'titulo-dashboard');
+  requestAnimationFrame(revelarAbaAtiva);
+}
+function revelarAbaAtiva() {
+  const abas = document.querySelector('.abas-locais');
+  const ativa = abas.querySelector('[aria-selected="true"]');
+  if (!ativa) return;
+  const area = abas.getBoundingClientRect();
+  const aba = ativa.getBoundingClientRect();
+  abas.scrollTo({ left: abas.scrollLeft + aba.left + aba.width / 2 - area.left - area.width / 2,
+    behavior: 'instant' });
 }
 function cancelarConsulta() {
   clearTimeout(timer); consulta?.abort(); consulta = null;
@@ -48,7 +59,7 @@ function finalizarConsulta(controle) {
   if (consulta !== controle) return;
   consulta = null;
   elemento('dashboard').setAttribute('aria-busy', 'false');
-  timer = setTimeout(atualizarDados, INTERVALO_ATUALIZACAO_MS);
+  timer = setTimeout(() => atualizarDados('atualizar'), INTERVALO_ATUALIZACAO_MS);
 }
 function aplicarResultados(resultado) {
   registros = resultado.historico;
@@ -57,7 +68,7 @@ function aplicarResultados(resultado) {
   mostrarHistorico(registros, { ...contexto(), situacao });
   const estado = { ...resultado.estado };
   if (resultado.falhaHistorico && ['success', 'stale'].includes(estado.tipo)) {
-    estado.texto = `${estados[estado.tipo].texto} O histórico não pôde ser atualizado.`;
+    estado.texto = `${estado.texto || estados[estado.tipo].texto} O histórico não pôde ser atualizado.`;
   }
   mostrarSituacao(estado);
 }
@@ -65,7 +76,9 @@ function prepararConsulta() {
   limparDados();
   if (!local || !local.apiId) {
     mostrarHistorico([], { ...contexto(), situacao: 'unconfigured' });
-    mostrarSituacao(estadoNaoConfigurado());
+    mostrarSituacao(local ? { tipo: 'empty' } : { tipo: 'error',
+      titulo: 'Localidade não encontrada', texto: 'Selecione uma das cidades disponíveis para continuar.' });
+    elemento('recarregar').disabled = true;
     return null;
   }
   const controle = new AbortController(); consulta = controle;
@@ -73,13 +86,13 @@ function prepararConsulta() {
   mostrarSituacao({ tipo: 'loading' });
   return controle;
 }
-async function atualizarDados() {
+async function atualizarDados(politica = 'reutilizar') {
   if (consulta) return;
   clearTimeout(timer);
   const controle = prepararConsulta();
   if (!controle) return;
   try {
-    const resultado = await consultarEstacao(local, { data: elemento('data-historico').value, signal: controle.signal });
+    const resultado = await consultarEstacao(local, { data: elemento('data-historico').value, signal: controle.signal, politica });
     if (consulta === controle) aplicarResultados(resultado);
   } catch (erro) {
     if (consulta !== controle) return;
@@ -90,7 +103,7 @@ async function atualizarDados() {
 function selecionarLocal(id) {
   cancelarConsulta(); local = localidades.find(item => item.id === id); limite = 3;
   atualizarSelecao(); atualizarEndereco(); atualizarDados();
-  elemento(`aba-${id}`).scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  revelarAbaAtiva();
 }
 function navegar(deslocamento) { selecionarLocal(moverSelecao(localidades, local?.id, deslocamento)); }
 function teclado(evento) {
@@ -101,7 +114,12 @@ function teclado(evento) {
   else return;
   evento.preventDefault(); elemento(`aba-${local.id}`).focus();
 }
-function alterarData() { cancelarConsulta(); if (local) atualizarEndereco(); atualizarDados(); }
+function alterarData() {
+  if (!elemento('data-historico').reportValidity()) return;
+  cancelarConsulta();
+  if (local) atualizarEndereco();
+  atualizarDados();
+}
 function expandirTabela() {
   limite = limite === 3 ? Infinity : 3;
   mostrarTabela(registros, limite);
@@ -121,11 +139,12 @@ function conectarControles() {
   elemento('local-anterior').addEventListener('click', () => navegar(-1));
   elemento('local-proximo').addEventListener('click', () => navegar(1));
   elemento('data-historico').addEventListener('change', alterarData);
-  elemento('recarregar').addEventListener('click', atualizarDados);
+  elemento('recarregar').addEventListener('click', () => atualizarDados('atualizar'));
   elemento('expandir-medicoes').addEventListener('click', expandirTabela);
   document.querySelectorAll('button[disabled]').forEach(botao => { botao.disabled = false; });
 }
 window.addEventListener('popstate', () => { cancelarConsulta(); carregarEndereco(); atualizarDados(); });
 window.addEventListener('pagehide', cancelarConsulta);
 window.addEventListener('pageshow', evento => { if (evento.persisted) atualizarDados(); });
-criarAbas(); carregarEndereco(); conectarControles(); atualizarDados();
+criarAbas(); carregarEndereco(); conectarControles(); atualizarDados(politicaInicialDeLeitura());
+new ResizeObserver(revelarAbaAtiva).observe(document.querySelector('.abas-locais'));

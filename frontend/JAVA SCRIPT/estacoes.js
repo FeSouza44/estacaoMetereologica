@@ -11,3 +11,10 @@ export const catalogoEstacoes = Object.freeze([
   disponibilidade: item.apiId === null ? 'unconfigured' : 'configured',
 })));
 export const estacoes = Object.freeze(Object.fromEntries(catalogoEstacoes.map(item => [item.id, item.apiId])));
+
+export function moverSelecao(lista, atual, deslocamento) {
+  if (!lista.length) return null;
+  const indice = lista.findIndex(local => local.id === atual);
+  if (indice < 0) return lista[deslocamento < 0 ? lista.length - 1 : 0].id;
+  return lista[((indice + deslocamento) % lista.length + lista.length) % lista.length].id;
+}

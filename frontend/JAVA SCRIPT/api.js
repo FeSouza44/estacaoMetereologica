@@ -5,7 +5,7 @@ function falha(mensagem, codigo = 'error') {
 }
 
 export function validarId(id) {
-  if (!Number.isInteger(id) || id < 1) throw new Error('Dados desta estação indisponíveis no momento.');
+  if (!Number.isSafeInteger(id) || id < 1) throw new Error('Dados desta estação indisponíveis no momento.');
   return encodeURIComponent(id);
 }
 
@@ -40,11 +40,17 @@ export async function requisitar(caminho, opcoes = {}) {
 }
 
 export function verificarApi(signal) { return requisitar('/', { signal }); }
+export function validarData(data) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw new Error('Selecione uma data válida.');
+  const instante = Date.parse(`${data}T00:00:00Z`);
+  if (!Number.isFinite(instante) || new Date(instante).toISOString().slice(0, 10) !== data)
+    throw new Error('Selecione uma data válida.');
+}
 export function obterLeituraRecente(id, signal) {
   return requisitar(`/api/estacoes/${validarId(id)}/recente`, { signal });
 }
 export function obterHistorico(id, consulta) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(consulta.data)) throw new Error('Selecione uma data válida.');
+  validarData(consulta.data);
   return requisitar(`/api/estacoes/${validarId(id)}/historico?data=${encodeURIComponent(consulta.data)}`,
     { signal: consulta.signal });
 }
