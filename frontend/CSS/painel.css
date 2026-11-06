@@ -80,14 +80,14 @@ nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: va
   background: var(--brilho-pagina);
 }
 .lista-localidades { position: relative; display: flex; align-items: center; gap: 24px; margin: 0;
-  padding: 32px 0; list-style: none; min-height: 536px; overflow-x: auto; overflow-y: hidden;
+  padding: 32px 0; list-style: none; min-height: 640px; overflow-x: auto; overflow-y: hidden;
   overscroll-behavior-x: contain; scrollbar-width: none; overflow-anchor: none;
   scroll-behavior: auto; touch-action: pan-y; cursor: grab; }
 .lista-localidades::-webkit-scrollbar { display: none; }
 .lista-localidades.arrastando { cursor: grabbing; user-select: none; }
 .localidade { flex: 0 0 380px; min-width: 0; }
 .localidade article {
-  display: flex; flex-direction: column; min-height: 470px; width: 100%;
+  display: flex; flex-direction: column; min-height: 570px; width: 100%;
   border: 1px solid var(--borda); border-radius: 22px; background: var(--cartao);
   transform: scale(.92); opacity: .75;
   transition: transform 320ms ease, opacity 320ms ease, border-color 320ms ease;
@@ -181,9 +181,9 @@ nav a:hover, nav a[aria-current] { background: var(--destaque-escuro); color: va
   #localidades { margin-top: 36px; }
   .titulo-secao { flex-wrap: wrap; gap: 8px; }
   .titulo-secao h2 { font-size: 18px; }
-  .lista-localidades { min-height: 462px; padding-block: 16px; gap: 12px; }
+  .lista-localidades { min-height: 620px; padding-block: 16px; gap: 12px; }
   .localidade { flex-basis: min(360px, 80cqw); }
-  .localidade article { min-height: 440px; }
+  .localidade article { min-height: 560px; }
   .clima { min-height: 280px; padding: 16px; }
   .detalhes-localidade { padding: 16px; }
   .identificacao-localidade h3 { font-size: 22px; }
@@ -238,4 +238,4 @@ nav a { min-height: 44px; display: flex; align-items: center; }
   :root { color-scheme: dark; }
 }
 
-.resumo-localidade .origem-umidade { font-size: 10px; font-weight: 400; color: var(--secundario); margin-top: 4px; }
+.resumo-localidade .origem-medicao { font-size: 10px; font-weight: 400; color: var(--secundario); margin-top: 4px; }
