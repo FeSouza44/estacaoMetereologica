@@ -38,7 +38,7 @@ export function situacaoLeitura(item) {
     'Leitura recente — conectividade não informada pela API';
 }
 export function formatarHorario(horario) {
-  return Number.isFinite(Date.parse(horario)) ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short',
+  return Number.isFinite(Date.parse(horario)) ? new Intl.DateTimeFormat('pt-BR', { timeStyle: 'short',
     timeZone: 'America/Sao_Paulo' }).format(new Date(horario)) : 'Indisponível';
 }
 export function classificar(campo, valor) {
